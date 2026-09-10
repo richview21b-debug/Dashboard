@@ -1,880 +1,1619 @@
 <!DOCTYPE html>
+
 <html lang="zh-HK">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>香港日常資訊 Dashboard (iPad mini 專用版)</title>
+
+  <!-- iPad mini 5 適合之視口與 PWA 全螢幕指令 -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Dashboard">
+
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta name="apple-mobile-web-app-title" content="日常 Dashboard">
+
+  <title>香港日常資訊 Dashboard (iPad mini 全螢幕版)</title>
+
   <style>
+
     :root {
+
       --bg-gradient: linear-gradient(135deg, #ffd1ff 0%, #fad0c4 99%, #fad0c4 100%);
-      --card-bg: rgba(255, 255, 255, 0.88);
+
+      --card-bg: rgba(255, 255, 255, 0.9);
+
       --card-border: #f3c4fb;
+
       --primary-color: #d45087;
-      --text-dark: #4a2e4b;
+
+      --text-dark: #3c233d;
+
       --accent-pink: #ff85a2;
+
       --accent-purple: #9c27b0;
+
       --shadow: 0 8px 20px rgba(212, 80, 135, 0.15);
+
       --holiday-red: #d32f2f;
-      --rain-bg: #ffebee;
-      --rain-border: #f44336;
-      --rain-text: #c62828;
+
     }
+
+ 
 
     * {
+
       box-sizing: border-box;
+
       margin: 0;
+
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+
     }
+
+ 
 
     body {
+
       background: var(--bg-gradient);
+
       height: 100vh;
+
       display: flex;
+
       flex-direction: column;
+
       color: var(--text-dark);
-      padding: 12px;
+
+      padding: 10px;
+
+      padding-top: max(10px, env(safe-area-inset-top));
+
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+
       overflow: hidden;
+
       font-size: 16px;
+
+      transition: background 1s ease;
+
     }
 
-    /* 降雨警告 Banner (有雨時動態顯示) */
+ 
+
+    /* 誇張醒目高對比度提示 Banner */
+
     .rain-alert-banner {
-      display: none; /* 預設隱藏 */
-      background: var(--rain-bg);
-      border: 2px solid var(--rain-border);
-      color: var(--rain-text);
-      padding: 10px 16px;
+
+      display: none;
+
+      background: #ff0033;
+
+      color: #ffffff;
+
+      border: 4px solid #ffeb3b;
+
+      padding: 8px 14px;
+
       border-radius: 16px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 10px;
+
+      font-size: 1.25rem;
+
+      font-weight: 900;
+
+      margin-bottom: 8px;
+
       align-items: center;
+
       gap: 10px;
-      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
-      animation: pulse 2s infinite;
+
+      box-shadow: 0 0 20px rgba(255, 0, 51, 0.8);
+
+      animation: alertBlink 1.2s infinite alternate;
+
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.01); }
-      100% { transform: scale(1); }
+ 
+
+    @keyframes alertBlink {
+
+      0% { background: #ff0033; transform: scale(1); }
+
+      100% { background: #ff5722; transform: scale(1.008); box-shadow: 0 0 25px rgba(255, 235, 59, 0.9); }
+
     }
 
-    /* 主區域 Layout (iPad mini 適合左右 1.1:1 比列) */
+ 
+
     .main-container {
+
       display: grid;
-      grid-template-columns: 1fr 1.1fr;
-      gap: 12px;
+
+      grid-template-columns: 0.95fr 1.05fr;
+
+      gap: 10px;
+
       flex: 1;
+
       min-height: 0;
-      margin-bottom: 10px;
+
+      margin-bottom: 8px;
+
     }
 
-    /* 卡片通用樣式 */
+ 
+
     .card {
+
       background: var(--card-bg);
+
       backdrop-filter: blur(12px);
-      border-radius: 20px;
+
+      border-radius: 18px;
+
       border: 2.5px solid var(--card-border);
-      padding: 14px;
+
+      padding: 10px 12px;
+
       box-shadow: var(--shadow);
+
       display: flex;
+
       flex-direction: column;
+
       position: relative;
+
       overflow: hidden;
+
     }
+
+ 
 
     .section-title {
-      font-size: 1.25rem;
+
+      font-size: 1.15rem;
+
       font-weight: 800;
+
       color: var(--primary-color);
-      margin-bottom: 6px;
+
+      margin-bottom: 4px;
+
       display: flex;
+
       align-items: center;
+
       gap: 6px;
+
     }
 
-    /* 大字體標準：iPad mini 上非常清晰 */
+ 
+
     .text-giant {
-      font-size: clamp(2.2rem, 3.8vw, 2.8rem);
+
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+
       font-weight: 900;
+
       color: var(--primary-color);
+
       line-height: 1.1;
-      letter-spacing: -0.5px;
+
     }
 
-    .text-sub {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
+ 
 
     /* --- 左側欄 --- */
+
     .left-panel {
+
       display: flex;
+
       flex-direction: column;
-      gap: 10px;
+
+      gap: 8px;
+
       height: 100%;
+
+      min-height: 0;
+
     }
 
-    .time-card {
-      flex: 0.9;
-      justify-content: center;
-    }
+ 
 
-    .weather-card {
-      flex: 1;
-      justify-content: center;
-    }
+    .time-card { flex: 0.75; justify-content: center; }
+
+    .weather-card { flex: 0.85; justify-content: center; }
+
+ 
 
     .weather-info {
+
       display: flex;
+
       align-items: center;
+
       justify-content: space-around;
-      margin-top: 4px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 14px;
-      padding: 8px;
-    }
 
-    .current-weather-icon {
-      width: 55px;
-      height: 55px;
-      object-fit: contain;
-    }
+      background: rgba(255, 255, 255, 0.6);
 
-    .holiday-countdown-card {
-      flex: 1.2;
-      justify-content: center;
-    }
+      border-radius: 12px;
 
-    .countdown-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.65);
-      border-radius: 16px;
-      padding: 8px;
-      margin-top: 4px;
-      text-align: center;
-    }
-
-    .countdown-holiday-name {
-      font-size: 1.3rem;
-      font-weight: 900;
-      color: #d81b60;
-    }
-
-    .daily-quote {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #d81b60;
-      margin-top: 6px;
-      padding: 6px 10px;
-      background: rgba(255, 230, 237, 0.9);
-      border-radius: 10px;
-      width: 100%;
-      text-align: center;
-    }
-
-    /* --- 右側欄 (月曆 + Gemini) --- */
-    .right-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      height: 100%;
-    }
-
-    .calendar-card {
-      flex: 1;
-      justify-content: flex-start;
-      padding: 12px;
-    }
-
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-
-    .calendar-title {
-      font-size: 1.6rem;
-      font-weight: 900;
-      color: var(--primary-color);
-    }
-
-    .calendar-nav button {
-      background: var(--accent-pink);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      width: 36px;
-      height: 36px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .holiday-banner {
-      background: #ffe6ed;
-      border-radius: 10px;
-      padding: 6px 10px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #d81b60;
-      margin-bottom: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      text-align: center;
-      flex: 1;
-    }
-
-    .weekday-header {
-      font-size: 1rem;
-      font-weight: 800;
-      color: var(--accent-purple);
-      padding-bottom: 2px;
-    }
-
-    .weekday-header.sun {
-      color: var(--holiday-red);
-    }
-
-    .day-cell {
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 10px;
       padding: 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      cursor: pointer;
-      min-height: 42px;
-      position: relative;
+
     }
 
-    .day-cell.today {
-      border: 2.5px solid var(--accent-pink);
-      background: #fff;
-      font-weight: bold;
-    }
+ 
 
-    /* 公眾假期樣式：數字紅色 + 底色粉紅 */
-    .day-cell.is-public-holiday {
-      background: #ffebee;
-    }
+    .current-weather-icon { width: 45px; height: 45px; object-fit: contain; }
 
-    .day-cell.is-public-holiday .day-number {
-      color: var(--holiday-red);
-      font-weight: 900;
-    }
+ 
 
-    .day-number {
-      font-size: 1.15rem;
+    /* 烚蛋計時器 */
+
+    .egg-timer-card { flex: 0.85; justify-content: space-between; }
+
+    .egg-btn-group { display: flex; gap: 8px; margin-top: 2px; }
+
+   .egg-btn {
+
+      flex: 1;
+
+      padding: 6px 2px;
+
+      border: 2px solid var(--card-border);
+
+      background: rgba(255, 255, 255, 0.9);
+
+      border-radius: 10px;
+
+      font-size: 0.85rem;
+
       font-weight: 800;
+
+      color: var(--text-dark);
+
+      cursor: pointer;
+
     }
 
-    .day-tags {
+    .egg-btn.active { background: var(--accent-pink); color: white; border-color: var(--primary-color); }
+
+    .egg-display {
+
       display: flex;
-      flex-direction: column;
-      gap: 2px;
+
       align-items: center;
-      margin-top: 2px;
-      width: 100%;
+
+      justify-content: space-between;
+
+      background: rgba(255, 255, 255, 0.6);
+
+      border-radius: 10px;
+
+      padding: 4px 10px;
+
     }
 
-    .tag {
-      font-size: 0.72rem;
-      padding: 1px 3px;
-      border-radius: 4px;
-      line-height: 1.1;
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .egg-ctrl-btn {
+
+      background: var(--primary-color);
+
+      color: white;
+
+      border: none;
+
+      padding: 4px 10px;
+
+      border-radius: 8px;
+
       font-weight: bold;
+
+      font-size: 0.85rem;
+
+      cursor: pointer;
+
     }
 
-    .tag-mom { background: #ffcdd2; color: #b71c1c; }
-    .tag-dad { background: #bbdefb; color: #0d47a1; }
-    .tag-custom { background: #e1bee7; color: #4a148c; }
-    .tag-holiday { background: #ffcdd2; color: #b71c1c; }
+ 
 
-    /* Gemini AI 助手 */
-    .gemini-card {
-      height: 90px;
-      flex-shrink: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(243, 229, 245, 0.9));
-    }
+    /* 倒數公眾假期 (最接近 2 個) */
 
-    .gemini-input-group {
+    .holiday-countdown-card { flex: 1.2; justify-content: flex-start; }
+
+    .holiday-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+    .holiday-item {
+
+      background: rgba(255, 255, 255, 0.75);
+
+      border-left: 5px solid var(--primary-color);
+
+      border-radius: 8px;
+
+      padding: 4px 8px;
+
       display: flex;
-      gap: 8px;
-      margin-top: 4px;
+
+      justify-content: space-between;
+
+      align-items: center;
+
     }
+
+    .holiday-item-title { font-size: 0.95rem; font-weight: 800; color: #d81b60; }
+
+    .holiday-item-sub { font-size: 0.75rem; color: #666; }
+
+    .holiday-item-days { font-size: 1.3rem; font-weight: 900; color: var(--primary-color); }
+
+ 
+
+    /* Gemini AI 助手 (左側) */
+
+    .gemini-card {
+
+      flex: 0.75;
+
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(243, 229, 245, 0.9));
+
+      justify-content: center;
+
+    }
+
+    .gemini-input-group { display: flex; gap: 6px; }
 
     .gemini-input {
+
       flex: 1;
-      padding: 10px 14px;
+
+      padding: 6px 10px;
+
       border: 2px solid var(--card-border);
-      border-radius: 12px;
-      font-size: 1.05rem;
+
+      border-radius: 10px;
+
+      font-size: 0.9rem;
+
       outline: none;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--text-dark);
+
     }
 
     .gemini-btn {
+
       background: linear-gradient(135deg, #ff85a2, #b388ff);
+
       color: white;
+
       border: none;
-      padding: 0 18px;
-      border-radius: 12px;
-      font-size: 1.05rem;
+
+      padding: 0 12px;
+
+      border-radius: 10px;
+
+      font-size: 0.9rem;
+
       font-weight: bold;
+
       cursor: pointer;
+
     }
 
-    /* 底部欄 (9天預報) */
-    .forecast-card {
-      height: 140px;
-      flex-shrink: 0;
+ 
+
+    /* --- 右側欄 (放大版月曆) --- */
+
+    .right-panel { height: 100%; display: flex; flex-direction: column; }
+
+    .calendar-card { flex: 1; padding: 10px; }
+
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+
+    .calendar-title { font-size: 1.4rem; font-weight: 900; color: var(--primary-color); }
+
+    .calendar-nav button {
+
+      background: var(--accent-pink);
+
+      color: white; border: none; border-radius: 8px;
+
+      width: 30px; height: 30px; font-size: 1rem; cursor: pointer; font-weight: bold;
+
     }
 
-    .forecast-container {
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      gap: 6px;
-      height: 100%;
-      align-items: center;
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; flex: 1; }
+
+    .weekday-header { font-size: 0.9rem; font-weight: 800; color: var(--accent-purple); text-align: center; }
+
+    .weekday-header.sun { color: var(--holiday-red); }
+
+ 
+
+    .day-cell {
+
+      background: rgba(255, 255, 255, 0.75);
+
+      border-radius: 8px;
+
+      padding: 2px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: flex-start;
+
+      cursor: pointer;
+
+      position: relative;
+
+      overflow: hidden;
+
     }
+
+    .day-cell.today { border: 2px solid var(--accent-pink); background: #fff; }
+
+    .day-cell.is-public-holiday { background: #ffebee; }
+
+    .day-cell.is-public-holiday .day-number { color: var(--holiday-red); font-weight: 900; }
+
+    .day-number { font-size: 1rem; font-weight: 800; margin-left: 2px; }
+
+ 
+
+    .day-tags { display: flex; flex-direction: column; gap: 1px; width: 100%; margin-top: 1px; }
+
+    .tag {
+
+      font-size: 0.65rem; padding: 0px 2px; border-radius: 3px;
+
+      line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;
+
+    }
+
+    .tag-mom { background: #ffcdd2; color: #b71c1c; }
+
+    .tag-dad { background: #bbdefb; color: #0d47a1; }
+
+    .tag-custom { background: #e1bee7; color: #4a148c; }
+
+    .tag-holiday { background: #ffcdd2; color: #b71c1c; }
+
+    .tag-birthday { background: #fff9c4; color: #f57f17; border: 1px solid #ffe082; }
+
+ 
+
+    /* 底部 9天天氣預報 */
+
+    .forecast-card { height: 110px; flex-shrink: 0; }
+
+    .forecast-container { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; height: 100%; align-items: center; }
 
     .forecast-item {
+
       background: rgba(255, 255, 255, 0.6);
-      border-radius: 12px;
-      padding: 4px 2px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
-      height: 95px;
+
+      border-radius: 10px; padding: 2px; text-align: center;
+
+      display: flex; flex-direction: column; justify-content: space-around; align-items: center; height: 75px;
+
     }
 
-    .forecast-date {
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--text-dark);
-    }
+    .forecast-date { font-size: 0.72rem; font-weight: 800; }
 
-    .forecast-icon {
-      width: 38px;
-      height: 38px;
-      object-fit: contain;
-    }
+    .forecast-icon { width: 28px; height: 28px; object-fit: contain; }
 
-    .forecast-temp {
-      font-size: 0.95rem;
-      font-weight: 900;
-      color: var(--primary-color);
-    }
+    .forecast-temp { font-size: 0.8rem; font-weight: 900; color: var(--primary-color); }
+
+ 
 
     /* Modal 彈出視窗 */
+
     .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.35);
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
+
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
+      background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 100;
+
     }
 
     .modal-content {
-      background: white;
-      padding: 24px;
-      border-radius: 20px;
-      width: 320px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      box-shadow: var(--shadow);
+
+      background: white; padding: 20px; border-radius: 18px; width: 340px;
+
+      display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow);
+
     }
 
-    .modal-title { font-size: 1.25rem; font-weight: bold; color: var(--primary-color); }
-    .modal-options label { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; margin-bottom: 8px; }
-    .modal-input { width: 100%; padding: 8px; font-size: 1rem; border: 1px solid #ccc; border-radius: 8px; }
-    .modal-btns { display: flex; justify-content: flex-end; gap: 10px; }
-    .modal-btns button { padding: 8px 16px; font-size: 1rem; border: none; border-radius: 8px; cursor: pointer; }
+    .modal-title { font-size: 1.2rem; font-weight: bold; color: var(--primary-color); }
+
+    .modal-options label { display: flex; align-items: center; gap: 8px; font-size: 1rem; margin-bottom: 6px; }
+
+    .modal-input { width: 100%; padding: 8px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 8px; }
+
+    .modal-btns { display: flex; justify-content: flex-end; gap: 8px; }
+
+    .modal-btns button { padding: 6px 14px; font-size: 0.95rem; border: none; border-radius: 8px; cursor: pointer; }
+
     .btn-save { background: var(--accent-pink); color: white; font-weight: bold; }
+
   </style>
+
 </head>
+
 <body>
 
-  <!-- 天文台落雨提示 Banner -->
+ 
+
+  <!-- 誇張醒目天氣與落雨警告 Banner -->
+
   <div class="rain-alert-banner" id="rain-alert-banner">
-    <span>🌧️ 本區落雨提示：</span>
-    <span id="rain-alert-text">天文台顯示目前本港部分地區有雨或預測有陣雨，出門記得帶傘！</span>
+
+    <span>⚠️ 特別天氣 / 落雨提示：</span>
+
+    <span id="rain-alert-text">天文台發出警告或即將降雨，出門務必帶傘！</span>
+
   </div>
 
+ 
+
   <div class="main-container">
+
     <!-- 左側資訊欄 -->
+
     <div class="left-panel">
+
       <!-- 時間 -->
+
       <div class="card time-card">
+
         <div class="section-title">⭐ 香港時間</div>
+
         <div class="text-giant" id="clock-time">12:00:00 PM</div>
-        <div class="text-sub" id="clock-date">2026年09月08日 週二</div>
+
+        <div style="font-size:1rem; font-weight:700;" id="clock-date">----年--月--日 週-</div>
+
       </div>
+
+ 
 
       <!-- 即時天氣 -->
+
       <div class="card weather-card">
+
         <div class="section-title">💖 即時天氣</div>
+
         <div class="weather-info">
+
           <img id="current-weather-icon" class="current-weather-icon" src="" alt="天氣圖標" style="display:none;">
+
           <div>
-            <div style="font-size: 0.95rem; font-weight: bold;">氣溫</div>
-            <div class="text-giant" id="current-temp" style="font-size: 2.2rem;">--°C</div>
+
+            <div style="font-size: 0.75rem; font-weight: bold;">氣溫</div>
+
+            <div class="text-giant" id="current-temp" style="font-size: 1.6rem;">--°C</div>
+
           </div>
+
           <div>
-            <div style="font-size: 0.95rem; font-weight: bold;">相對濕度</div>
-            <div class="text-giant" id="current-humidity" style="font-size: 2.2rem;">--%</div>
+
+            <div style="font-size: 0.75rem; font-weight: bold;">相對濕度</div>
+
+            <div class="text-giant" id="current-humidity" style="font-size: 1.6rem;">--%</div>
+
           </div>
+
         </div>
+
       </div>
 
-      <!-- 下一個公眾假期倒數 -->
-      <div class="card holiday-countdown-card">
-        <div class="section-title">🐰 距離下一個公眾假期</div>
-        <div class="countdown-box">
-          <div class="countdown-holiday-name" id="next-holiday-name">載入中...</div>
-          <div>
-            <span class="text-giant" id="countdown-workdays">--</span> 
-            <span style="font-size: 1.3rem; font-weight: 800; color: var(--primary-color);">個工作日</span>
-          </div>
-          <div style="font-size: 0.95rem; color: var(--text-dark);" id="next-holiday-date">(不含星期日)</div>
-          <div class="daily-quote" id="daily-quote">💪 撐住呀！返多幾日工又可以放假啦！</div>
+ 
+
+      <!-- 烚蛋計時器 (6min 溫泉蛋 / 8min 糖心蛋) -->
+
+      <div class="card egg-timer-card">
+
+        <div class="section-title">🥚 烚蛋計時器</div>
+
+        <div class="egg-btn-group">
+
+          <button class="egg-btn active" onclick="selectEggPreset(360, this)">6分鐘<br>溫泉蛋</button>
+
+          <button class="egg-btn" onclick="selectEggPreset(480, this)">8分鐘<br>糖心蛋</button>
+
         </div>
+
+        <div class="egg-display">
+
+          <div class="text-giant" id="egg-timer-text" style="font-size: 1.5rem;">06:00</div>
+
+          <div>
+
+            <button class="egg-ctrl-btn" id="egg-start-btn" onclick="toggleEggTimer()">開始</button>
+
+            <button class="egg-ctrl-btn" style="background:#888;" onclick="resetEggTimer()">重置</button>
+
+          </div>
+
+        </div>
+
       </div>
+
+ 
+
+      <!-- 倒數公眾假期 (最接近 2 個) -->
+
+      <div class="card holiday-countdown-card">
+
+        <div class="section-title">🐰 最接近的 2 個公眾假期</div>
+
+        <div class="holiday-list" id="holiday-list">
+
+          <div style="font-size:0.85rem; color:#666;">載入假期中...</div>
+
+        </div>
+
+      </div>
+
+ 
+
+      <!-- Gemini AI 隨身助手 (已移至左側) -->
+
+      <div class="card gemini-card">
+
+        <div class="section-title">✨ Gemini AI 助手</div>
+
+        <div class="gemini-input-group">
+
+          <input type="text" id="gemini-prompt" class="gemini-input" placeholder="問 Gemini 嘢 (如：今晚食咩？)" onkeypress="if(event.key==='Enter') askGemini()">
+
+          <button class="gemini-btn" onclick="askGemini()">開啟</button>
+
+        </div>
+
+      </div>
+
     </div>
 
-    <!-- 右側欄 (月曆 + Gemini) -->
-    <div class="right-panel">
-      <!-- 月曆 -->
-      <div class="card calendar-card">
-        <div class="calendar-header">
-          <div class="calendar-title" id="calendar-month-year">----年 -月</div>
-          <div class="calendar-nav">
-            <button onclick="changeMonth(-1)">&lt;</button>
-            <button onclick="changeMonth(1)">&gt;</button>
-          </div>
-        </div>
+ 
 
-        <!-- 當月公眾假期提示列 -->
-        <div class="holiday-banner" id="holiday-banner">
-          🎉 本月公眾假期：載入中...
+    <!-- 右側欄 (放大版月曆) -->
+
+    <div class="right-panel">
+
+      <div class="card calendar-card">
+
+        <div class="calendar-header">
+
+          <div class="calendar-title" id="calendar-month-year">----年 -月</div>
+
+          <div class="calendar-nav">
+
+            <button onclick="changeMonth(-1)">&lt;</button>
+
+            <button onclick="changeMonth(1)">&gt;</button>
+
+          </div>
+
         </div>
 
         <div class="calendar-grid" id="calendar-grid">
+
           <!-- 動態渲染月曆 -->
+
         </div>
+
       </div>
 
-      <!-- Gemini AI 助手 -->
-      <div class="card gemini-card">
-        <div class="section-title">✨ Gemini AI 隨身助手</div>
-        <div class="gemini-input-group">
-          <input type="text" id="gemini-prompt" class="gemini-input" placeholder="問下 Gemini 嘢啦... (例如：今晚食咩好？)" onkeypress="if(event.key==='Enter') askGemini()">
-          <button class="gemini-btn" onclick="askGemini()">提問</button>
-        </div>
-      </div>
     </div>
+
   </div>
+
+ 
 
   <!-- 底部 9 天天氣預報 -->
+
   <div class="card forecast-card">
-    <div class="section-title" style="margin-bottom: 2px;">✨ 9 天天氣預報</div>
+
+    <div class="section-title" style="margin-bottom: 2px; font-size:0.95rem;">✨ 9 天天氣預報</div>
+
     <div class="forecast-container" id="forecast-container">
+
       <!-- 動態渲染預報 -->
+
     </div>
+
   </div>
+
+ 
 
   <!-- 日期標記 Modal -->
+
   <div class="modal" id="date-modal">
+
     <div class="modal-content">
+
       <div class="modal-title" id="modal-date-label">設定日期標記</div>
+
       <div class="modal-options">
+
         <label><input type="checkbox" id="chk-mom"> 媽媽上班日 👩‍💻</label>
+
         <label><input type="checkbox" id="chk-dad"> 爸爸休息日 ☕</label>
+
       </div>
+
       <div>
-        <label style="font-size: 0.95rem; font-weight: bold;">自訂文字 / Emoji：</label>
-        <input type="text" id="txt-custom" class="modal-input" placeholder="例如：生日 🎉 / 睇醫生 🩺">
+
+        <label style="font-size: 0.85rem; font-weight: bold;">自訂 Remark (多條請用逗點或換行分隔)：</label>
+
+        <textarea id="txt-custom" class="modal-input" style="height: 60px; resize: none;" placeholder="例如：生日 🎉, 睇醫生 15:00"></textarea>
+
       </div>
+
       <div class="modal-btns">
+
         <button onclick="closeModal()">取消</button>
+
         <button class="btn-save" onclick="saveDateSettings()">儲存</button>
+
       </div>
+
     </div>
+
   </div>
 
+ 
+
   <script>
-    // --- 狀態管理 ---
-    let currentDate = new Date(); // 月曆當前檢視的日期
-    let lastCheckedDayStr = '';   // 紀錄上次檢查的日期字串 (用作跨日自動切換)
+
+    // --- 1. 全局狀態與自動主題轉換 ---
+
+    let currentDate = new Date();
+
+    let lastCheckedDayStr = '';
+
     let selectedDateKey = '';
-    let userEvents = JSON.parse(localStorage.getItem('dashboard_events') || '{}');
+
+    let userEvents = JSON.parse(localStorage.getItem('dashboard_events_v2') || '{}');
+
     let publicHolidaysMap = {};
 
-    const cantoneseQuotes = [
-      "💪 撐住呀！返多幾日工又可以放假啦！",
-      "☕ 頂住！飲杯奶茶/咖啡再繼續拼搏！",
-      "🔥 距離放假又近一步，衝呀打工人！",
-      "✨ 做完今日嘅嘢，又離假期近咗啦！加油！",
-      "🍔 今晚食餐好嘅獎勵下自己，放假指日可待！",
-      "🧘‍♀️ 唔好急最緊要快，再撐一陣就放假！",
-      "🎉 假期就在不遠處，堅持住，勝利屬於你！"
+ 
+
+    const cuteThemeGradients = [
+
+      "linear-gradient(135deg, #ffd1ff 0%, #fad0c4 99%, #fad0c4 100%)",
+
+      "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)",
+
+      "linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)",
+
+      "linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)",
+
+      "linear-gradient(135deg, #fccb90 0%, #d782d9 100%)"
+
     ];
 
-    // --- 1. 時間更新與每日自動跨日切換 ---
+ 
+
     function updateClock() {
+
       const now = new Date();
-      
+
       let hours = now.getHours();
+
       const minutes = String(now.getMinutes()).padStart(2, '0');
+
       const seconds = String(now.getSeconds()).padStart(2, '0');
+
       const ampm = hours >= 12 ? 'PM' : 'AM';
+
       hours = hours % 12 || 12;
-      
+
+     
+
       document.getElementById('clock-time').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
 
+ 
+
       const year = now.getFullYear();
+
       const month = String(now.getMonth() + 1).padStart(2, '0');
+
       const date = String(now.getDate()).padStart(2, '0');
+
       const weekDays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
-      const week = weekDays[now.getDay()];
 
-      document.getElementById('clock-date').textContent = `${year}年${month}月${date}日 ${week}`;
+      document.getElementById('clock-date').textContent = `${year}年${month}月${date}日 ${weekDays[now.getDay()]}`;
 
-      // 自動檢查是否過了半夜12點 (跨日/跨月自動更新月曆)
+ 
+
+      // 凌晨 12:00 自動切換跨月與可愛底色
+
       const todayStr = `${year}-${month}-${date}`;
+
       if (lastCheckedDayStr !== '' && lastCheckedDayStr !== todayStr) {
-        currentDate = new Date(); // 將檢視月份更新為最新的今天
+
+        currentDate = new Date();
+
         renderCalendar();
+
         fetchHolidaysAndCalculate();
+
+        applyDailyTheme(now);
+
       }
+
       lastCheckedDayStr = todayStr;
+
     }
+
+ 
+
+    function applyDailyTheme(dateObj) {
+
+      const dayOfYear = Math.floor((dateObj - new Date(dateObj.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+
+      document.body.style.background = cuteThemeGradients[dayOfYear % cuteThemeGradients.length];
+
+    }
+
+ 
+
     setInterval(updateClock, 1000);
+
     updateClock();
 
-    // --- 2. 香港天文台 API & 降雨提示邏輯 ---
+    applyDailyTheme(new Date());
+
+ 
+
+    // --- 2. 天文台 API (誇張醒目警告提示) ---
+
     async function fetchWeather() {
+
       try {
-        // 取得即時天氣
+
         const rCurrent = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+
         const dCurrent = await rCurrent.json();
-        
-        if (dCurrent.temperature && dCurrent.temperature.data.length > 0) {
+
+       
+
+        if (dCurrent.temperature?.data?.length > 0) {
+
           const tempObj = dCurrent.temperature.data.find(t => t.place === "京士柏") || dCurrent.temperature.data[0];
+
           document.getElementById('current-temp').textContent = `${tempObj.value}°C`;
+
         }
-        if (dCurrent.humidity && dCurrent.humidity.data.length > 0) {
+
+        if (dCurrent.humidity?.data?.length > 0) {
+
           document.getElementById('current-humidity').textContent = `${dCurrent.humidity.data[0].value}%`;
+
         }
-        
-        if (dCurrent.icon && dCurrent.icon.length > 0) {
+
+        if (dCurrent.icon?.length > 0) {
+
           const iconImg = document.getElementById('current-weather-icon');
+
           iconImg.src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${dCurrent.icon[0]}.png`;
+
           iconImg.style.display = 'block';
+
         }
 
-        // 判斷本區/全港是否有雨 (檢查雨量資料與天氣報告文字)
-        checkRainStatus(dCurrent);
+ 
 
-        // 取得 9 天預報
+        // 取得特別天氣警告
+
+        const rWarn = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc');
+
+        const dWarn = await rWarn.json();
+
+ 
+
+        checkRainAndWarnings(dCurrent, dWarn);
+
+ 
+
+        // 9天天氣預報
+
         const rForecast = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc');
+
         const dForecast = await rForecast.json();
-        const fList = dForecast.weatherForecast || [];
-        
+
         const forecastContainer = document.getElementById('forecast-container');
+
         forecastContainer.innerHTML = '';
-        
-        fList.slice(0, 9).forEach(item => {
+
+       
+
+        (dForecast.weatherForecast || []).slice(0, 9).forEach(item => {
+
           const m = item.forecastDate.substring(4, 6);
+
           const d = item.forecastDate.substring(6, 8);
+
           const week = item.week.replace('星期', '週');
-          const iconNum = item.ForecastIcon;
-          const iconUrl = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconNum}.png`;
-          
+
           const div = document.createElement('div');
+
           div.className = 'forecast-item';
+
           div.innerHTML = `
-            <div class="forecast-date">${m}/${d} (${week})</div>
-            <img class="forecast-icon" src="${iconUrl}" alt="${item.forecastForecast || ''}" title="${item.forecastForecast || ''}">
+
+            <div class="forecast-date">${m}/${d}(${week})</div>
+
+            <img class="forecast-icon" src="https://www.hko.gov.hk/images/HKOWxIconOutline/pic${item.ForecastIcon}.png">
+
             <div class="forecast-temp">${item.forecastMintemp.value}°-${item.forecastMaxtemp.value}°C</div>
+
           `;
+
           forecastContainer.appendChild(div);
+
         });
+
       } catch (e) {
+
         console.error('Weather API Error:', e);
+
       }
+
     }
 
-    function checkRainStatus(weatherData) {
+ 
+
+    function checkRainAndWarnings(weatherData, warnData) {
+
       const banner = document.getElementById('rain-alert-banner');
+
       const bannerText = document.getElementById('rain-alert-text');
-      let isRaining = false;
-      let rainDetail = '';
 
-      // 檢查雨量紀錄 (rainfall)
-      if (weatherData.rainfall && weatherData.rainfall.data) {
+      let alertMessages = [];
+
+ 
+
+      // 檢查天氣警告 (雷暴、暴雨、颱風、酷熱等)
+
+      if (warnData && Object.keys(warnData).length > 0) {
+
+        for (let key in warnData) {
+
+          if (warnData[key].name) alertMessages.push(warnData[key].name);
+
+        }
+
+      }
+
+ 
+
+      // 檢查雨量與雨天預報
+
+      if (weatherData.rainfall?.data) {
+
         const activeRain = weatherData.rainfall.data.find(r => r.max > 0);
-        if (activeRain) {
-          isRaining = true;
-          rainDetail = `天文台顯示部分地區（如 ${activeRain.place} 等）過去一小時錄得雨量，出門請帶傘！`;
-        }
+
+        if (activeRain) alertMessages.push(`本港部分地區（如 ${activeRain.place}）錄得雨量 🌧️`);
+
       }
 
-      // 如果未有具體數據，檢查警告或天氣描述
-      if (!isRaining && weatherData.forecastDesc) {
-        if (weatherData.forecastDesc.includes('雨') || weatherData.forecastDesc.includes('陣雨')) {
-          isRaining = true;
-          rainDetail = `天文台預報：${weatherData.forecastDesc}，請記得帶遮！`;
-        }
+      if (weatherData.forecastDesc && (weatherData.forecastDesc.includes('雨') || weatherData.forecastDesc.includes('陣雨'))) {
+
+        alertMessages.push("預測有陣雨，記得帶遮！☂️");
+
       }
 
-      if (isRaining) {
-        bannerText.textContent = rainDetail;
+ 
+
+      if (alertMessages.length > 0) {
+
+        bannerText.textContent = alertMessages.join(' | ');
+
         banner.style.display = 'flex';
+
       } else {
+
         banner.style.display = 'none';
+
       }
+
     }
+
+ 
 
     fetchWeather();
-    setInterval(fetchWeather, 300000); // 每 5 分鐘更新一次天氣與雨量
 
-    // --- 3. 假期數據載入與倒數計算 ---
+    setInterval(fetchWeather, 300000);
+
+ 
+
+    // --- 3. 烚蛋計時器 (6min 溫泉蛋 / 8min 糖心蛋) ---
+
+    let eggTotalTime = 360;
+
+    let eggRemainingTime = 360;
+
+    let eggInterval = null;
+
+ 
+
+    function selectEggPreset(seconds, btn) {
+
+      clearInterval(eggInterval);
+
+      eggInterval = null;
+
+      document.getElementById('egg-start-btn').textContent = '開始';
+
+      document.querySelectorAll('.egg-btn').forEach(b => b.classList.remove('active'));
+
+      btn.classList.add('active');
+
+      eggTotalTime = seconds;
+
+      eggRemainingTime = seconds;
+
+      updateEggDisplay();
+
+    }
+
+ 
+
+    function updateEggDisplay() {
+
+      const m = String(Math.floor(eggRemainingTime / 60)).padStart(2, '0');
+
+      const s = String(eggRemainingTime % 60).padStart(2, '0');
+
+      document.getElementById('egg-timer-text').textContent = `${m}:${s}`;
+
+    }
+
+ 
+
+    function toggleEggTimer() {
+
+      const startBtn = document.getElementById('egg-start-btn');
+
+      if (eggInterval) {
+
+        clearInterval(eggInterval);
+
+        eggInterval = null;
+
+        startBtn.textContent = '繼續';
+
+      } else {
+
+        if (eggRemainingTime <= 0) eggRemainingTime = eggTotalTime;
+
+        startBtn.textContent = '暫停';
+
+        eggInterval = setInterval(() => {
+
+          eggRemainingTime--;
+
+          updateEggDisplay();
+
+          if (eggRemainingTime <= 0) {
+
+            clearInterval(eggInterval);
+
+            eggInterval = null;
+
+            startBtn.textContent = '開始';
+
+            alert('🔔 烚蛋時間到！可以撈起過冷河啦！');
+
+          }
+
+        }, 1000);
+
+      }
+
+    }
+
+ 
+
+    function resetEggTimer() {
+
+      clearInterval(eggInterval);
+
+      eggInterval = null;
+
+      document.getElementById('egg-start-btn').textContent = '開始';
+
+      eggRemainingTime = eggTotalTime;
+
+      updateEggDisplay();
+
+    }
+
+ 
+
+    // --- 4. 最接近 2 個公眾假期倒數 ---
+
     async function fetchHolidaysAndCalculate() {
+
       const today = new Date();
+
       const currentYear = today.getFullYear();
-      
+
       try {
+
         const [resThisYear, resNextYear] = await Promise.all([
+
           fetch(`https://date.nager.at/api/v3/PublicHolidays/${currentYear}/HK`),
+
           fetch(`https://date.nager.at/api/v3/PublicHolidays/${currentYear + 1}/HK`)
+
         ]);
-        
+
         const data1 = await resThisYear.json();
+
         const data2 = await resNextYear.json();
+
         const list = [...data1, ...data2];
 
-        publicHolidaysMap = {};
-        list.forEach(h => {
-          publicHolidaysMap[h.date] = h.localName || h.name;
-        });
+ 
 
-        calculateNextHoliday(list);
+        publicHolidaysMap = {};
+
+        list.forEach(h => publicHolidaysMap[h.date] = h.localName || h.name);
+
+ 
+
+        renderTop2Holidays(list);
+
         renderCalendar();
+
       } catch (e) {
+
         console.error('Holiday API Error:', e);
-        document.getElementById('next-holiday-name').textContent = '無法載入假期資料';
+
       }
+
     }
 
-    function calculateNextHoliday(list) {
-      if (!list || list.length === 0) return;
+ 
+
+    function renderTop2Holidays(list) {
 
       const now = new Date();
+
       const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
       const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-      const nextHoliday = list.find(h => h.date > todayStr);
+ 
 
-      if (!nextHoliday) {
-        document.getElementById('next-holiday-name').textContent = '近期無公眾假期';
-        document.getElementById('countdown-workdays').textContent = '--';
-        document.getElementById('next-holiday-date').textContent = '';
+      const upcoming = list.filter(h => h.date > todayStr).slice(0, 2);
+
+      const container = document.getElementById('holiday-list');
+
+      container.innerHTML = '';
+
+ 
+
+      if (upcoming.length === 0) {
+
+        container.innerHTML = '<div style="font-size:0.85rem;">近期無公眾假期</div>';
+
         return;
+
       }
 
-      const holidayParts = nextHoliday.date.split('-');
-      const holidayDate = new Date(parseInt(holidayParts[0]), parseInt(holidayParts[1]) - 1, parseInt(holidayParts[2]));
+ 
 
-      let workdays = 0;
-      let curr = new Date(todayDate);
-      curr.setDate(curr.getDate() + 1);
+      upcoming.forEach(h => {
 
-      while (curr < holidayDate) {
-        if (curr.getDay() !== 0) { // 不算星期日
-          workdays++;
-        }
+        const parts = h.date.split('-');
+
+        const targetDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+
+ 
+
+        let workdays = 0;
+
+        let curr = new Date(todayDate);
+
         curr.setDate(curr.getDate() + 1);
-      }
 
-      const holidayName = nextHoliday.localName || nextHoliday.name;
-      document.getElementById('next-holiday-name').textContent = holidayName;
-      document.getElementById('countdown-workdays').textContent = workdays;
-      document.getElementById('next-holiday-date').textContent = `(${parseInt(holidayParts[1])}月${parseInt(holidayParts[2])}日)`;
+ 
 
-      const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-      document.getElementById('daily-quote').textContent = cantoneseQuotes[dayOfYear % cantoneseQuotes.length];
+        while (curr < targetDate) {
+
+          if (curr.getDay() !== 0) workdays++; // 扣除星期日
+
+          curr.setDate(curr.getDate() + 1);
+
+        }
+
+ 
+
+        const div = document.createElement('div');
+
+        div.className = 'holiday-item';
+
+        div.innerHTML = `
+
+          <div>
+
+            <div class="holiday-item-title">${h.localName || h.name}</div>
+
+            <div class="holiday-item-sub">${parseInt(parts[1])}月${parseInt(parts[2])}日 (剩餘工作天)</div>
+
+          </div>
+
+          <div class="holiday-item-days">${workdays}<span style="font-size:0.75rem;">日</span></div>
+
+        `;
+
+        container.appendChild(div);
+
+      });
+
     }
 
-    fetchHolidaysAndCalculate();
+ 
 
-    // --- 4. 月曆渲染 ---
+    // --- 5. 月曆渲染（支援多重 Remark & 生日每年自動重複）---
+
     const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 
+ 
+
     function renderCalendar() {
+
       const year = currentDate.getFullYear();
+
       const month = currentDate.getMonth();
+
+ 
 
       document.getElementById('calendar-month-year').textContent = `${year}年 ${month + 1}月`;
 
       const grid = document.getElementById('calendar-grid');
+
       grid.innerHTML = '';
 
+ 
+
       weekdays.forEach((w, idx) => {
+
         const h = document.createElement('div');
+
         h.className = `weekday-header ${idx === 0 ? 'sun' : ''}`;
+
         h.textContent = w;
+
         grid.appendChild(h);
+
       });
 
+ 
+
       const firstDay = new Date(year, month, 1).getDay();
+
       const totalDays = new Date(year, month + 1, 0).getDate();
+
       const today = new Date();
 
+ 
+
       for (let i = 0; i < firstDay; i++) {
+
         grid.appendChild(document.createElement('div'));
+
       }
 
-      for (let d = 1; d <= totalDays; d++) {
+ 
+
+     for (let d = 1; d <= totalDays; d++) {
+
         const cell = document.createElement('div');
+
         cell.className = 'day-cell';
-        
+
+       
+
         const monthStr = String(month + 1).padStart(2, '0');
+
         const dayStr = String(d).padStart(2, '0');
+
         const dateStr = `${year}-${monthStr}-${dayStr}`;
-        
+
+        const monthDayStr = `${monthStr}-${dayStr}`;
+
+       
+
         const isPublicHoliday = !!publicHolidaysMap[dateStr];
-        if (isPublicHoliday) {
-          cell.classList.add('is-public-holiday');
-        }
+
+        if (isPublicHoliday) cell.classList.add('is-public-holiday');
 
         if (year === today.getFullYear() && month === today.getMonth() && d === today.getDate()) {
+
           cell.classList.add('today');
+
         }
+
+ 
 
         let tagsHTML = '';
+
         if (isPublicHoliday) {
-          tagsHTML += `<span class="tag tag-holiday" title="${publicHolidaysMap[dateStr]}">${publicHolidaysMap[dateStr]}</span>`;
+
+          tagsHTML += `<span class="tag tag-holiday">${publicHolidaysMap[dateStr]}</span>`;
+
         }
 
-        const ev = userEvents[dateStr];
-        if (ev) {
-          if (ev.mom) tagsHTML += `<span class="tag tag-mom">媽返</span>`;
-          if (ev.dad) tagsHTML += `<span class="tag tag-dad">爸休</span>`;
-          if (ev.custom) tagsHTML += `<span class="tag tag-custom">${ev.custom}</span>`;
-        }
+ 
 
-        cell.innerHTML = `
-          <span class="day-number">${d}</span>
-          <div class="day-tags">${tagsHTML}</div>
-        `;
+        // 載入該日全部 Remark (包含生日自動重複邏輯)
 
-        cell.onclick = () => openModal(dateStr);
-        grid.appendChild(cell);
-      }
+        const remarks = getCombinedRemarks(dateStr, monthDayStr);
 
-      updateHolidayBanner(year, month + 1);
-    }
+        remarks.forEach(r => {
 
-    function changeMonth(delta) {
-      currentDate.setMonth(currentDate.getMonth() + delta);
-      renderCalendar();
-    }
+          if (r.type === 'mom') tagsHTML += `<span class="tag tag-mom">媽返</span>`;
 
-    function updateHolidayBanner(year, month) {
-      const banner = document.getElementById('holiday-banner');
-      const prefix = `${year}-${String(month).padStart(2, '0')}`;
-      
-      const monthHolidays = Object.keys(publicHolidaysMap)
-        .filter(dateKey => dateKey.startsWith(prefix))
-        .map(dateKey => {
-          const dayNum = parseInt(dateKey.split('-')[2]);
-          return `${dayNum}日 (${publicHolidaysMap[dateKey]})`;
+          if (r.type === 'dad') tagsHTML += `<span class="tag tag-dad">爸休</span>`;
+
+          if (r.type === 'custom') {
+
+            const isBirthday = r.text.includes('生日');
+
+            const tagClass = isBirthday ? 'tag-birthday' : 'tag-custom';
+
+            const icon = isBirthday ? '🎂 ' : '';
+
+            tagsHTML += `<span class="tag ${tagClass}">${icon}${r.text}</span>`;
+
+          }
+
         });
 
-      if (monthHolidays.length > 0) {
-        banner.textContent = `🎉 本月公眾假期：${monthHolidays.join(', ')}`;
-      } else {
-        banner.textContent = '🎉 本月公眾假期：無';
+ 
+
+        cell.innerHTML = `
+
+          <span class="day-number">${d}</span>
+
+          <div class="day-tags">${tagsHTML}</div>
+
+        `;
+
+ 
+
+        cell.onclick = () => openModal(dateStr);
+
+        grid.appendChild(cell);
+
       }
+
     }
 
-    // --- 5. Gemini AI 提問 ---
+ 
+
+    function getCombinedRemarks(fullDate, monthDay) {
+
+      let result = [];
+
+     
+
+      // 1. 檢查具體日期特定紀錄
+
+      if (userEvents[fullDate]) {
+
+        const ev = userEvents[fullDate];
+
+        if (ev.mom) result.push({ type: 'mom' });
+
+        if (ev.dad) result.push({ type: 'dad' });
+
+        if (ev.customList) {
+
+          ev.customList.forEach(txt => result.push({ type: 'custom', text: txt }));
+
+        }
+
+      }
+
+ 
+
+      // 2. 檢查每年重複的生日（key 儲存格式為 MM-DD）
+
+      if (userEvents[`BD_${monthDay}`]) {
+
+        const bdEv = userEvents[`BD_${monthDay}`];
+
+        if (bdEv.customList) {
+
+          bdEv.customList.forEach(txt => result.push({ type: 'custom', text: txt }));
+
+        }
+
+      }
+
+ 
+
+      return result;
+
+    }
+
+ 
+
+    function changeMonth(delta) {
+
+      currentDate.setMonth(currentDate.getMonth() + delta);
+
+      renderCalendar();
+
+    }
+
+ 
+
+    // --- 6. Gemini Deep Link 呼叫 iPad App ---
+
     function askGemini() {
+
       const input = document.getElementById('gemini-prompt');
+
       const prompt = input.value.trim();
+
       if (prompt) {
-        const geminiUrl = `https://gemini.google.com/app?q=${encodeURIComponent(prompt)}`;
-        window.open(geminiUrl, '_blank');
+
+        // 使用 iOS App Deep Link 呼叫 iPad 內置 Gemini App
+
+        window.location.href = `googlegemini://prompt?text=${encodeURIComponent(prompt)}`;
+
+       
+
+        // 防護備用方案：如未安裝 App 則開啟網頁
+
+        setTimeout(() => {
+
+          window.open(`https://gemini.google.com/app?q=${encodeURIComponent(prompt)}`, '_blank');
+
+        }, 1200);
+
         input.value = '';
+
+      } else {
+
+        window.location.href = `googlegemini://`;
+
       }
+
     }
 
-    // --- 6. 日期標記 Modal ---
+ 
+
+    // --- 7. 日期標記 Modal ---
+
     function openModal(dateKey) {
+
       selectedDateKey = dateKey;
+
+      const monthDayKey = dateKey.substring(5);
+
       const holidayName = publicHolidaysMap[dateKey] ? ` [${publicHolidaysMap[dateKey]}]` : '';
+
       document.getElementById('modal-date-label').textContent = `設定 ${dateKey}${holidayName} 標記`;
-      
+
+     
+
       const ev = userEvents[dateKey] || {};
+
+      const bdEv = userEvents[`BD_${monthDayKey}`] || {};
+
+ 
+
       document.getElementById('chk-mom').checked = !!ev.mom;
+
       document.getElementById('chk-dad').checked = !!ev.dad;
-      document.getElementById('txt-custom').value = ev.custom || '';
+
+ 
+
+      let allCustom = [];
+
+      if (ev.customList) allCustom.push(...ev.customList);
+
+      if (bdEv.customList) allCustom.push(...bdEv.customList);
+
+ 
+
+      document.getElementById('txt-custom').value = allCustom.join(', ');
 
       document.getElementById('date-modal').style.display = 'flex';
+
     }
+
+ 
 
     function closeModal() {
+
       document.getElementById('date-modal').style.display = 'none';
+
     }
+
+ 
 
     function saveDateSettings() {
-      const mom = document.getElementById('chk-mom').checked;
-      const dad = document.getElementById('chk-dad').checked;
-      const custom = document.getElementById('txt-custom').value.trim();
 
-      if (mom || dad || custom) {
-        userEvents[selectedDateKey] = { mom, dad, custom };
+      const mom = document.getElementById('chk-mom').checked;
+
+      const dad = document.getElementById('chk-dad').checked;
+
+      const rawCustom = document.getElementById('txt-custom').value.trim();
+
+      const monthDayKey = selectedDateKey.substring(5);
+
+ 
+
+      // 分隔多個 remark
+
+      const list = rawCustom ? rawCustom.split(/[,\n，]/).map(s => s.trim()).filter(s => s.length > 0) : [];
+
+ 
+
+      const normalRemarks = list.filter(s => !s.includes('生日'));
+
+      const birthdayRemarks = list.filter(s => s.includes('生日'));
+
+ 
+
+      // 儲存一般 Remark
+
+      if (mom || dad || normalRemarks.length > 0) {
+
+        userEvents[selectedDateKey] = { mom, dad, customList: normalRemarks };
+
       } else {
+
         delete userEvents[selectedDateKey];
+
       }
 
-      localStorage.setItem('dashboard_events', JSON.stringify(userEvents));
+ 
+
+      // 包含「生日」時儲存為每年自動重複的 BD_MM-DD key
+
+      if (birthdayRemarks.length > 0) {
+
+        userEvents[`BD_${monthDayKey}`] = { customList: birthdayRemarks };
+
+      } else {
+
+        delete userEvents[`BD_${monthDayKey}`];
+
+      }
+
+ 
+
+      localStorage.setItem('dashboard_events_v2', JSON.stringify(userEvents));
+
       closeModal();
+
       renderCalendar();
+
     }
 
-    // 初始化渲染
-    renderCalendar();
+ 
+
+    fetchHolidaysAndCalculate();
+
   </script>
+
 </body>
+
 </html>
